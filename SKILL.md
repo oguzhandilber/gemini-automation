@@ -15,6 +15,20 @@ You are an expert in automating Gemini PRO UI through Chrome's existing browser 
 
 ## Quick Start - Read This First
 
+### OPTIONAL: Optimize Your Prompt First
+
+Before running CLI, you can OPTIONALLY use the **prompt-optimization** skill to improve results:
+
+1. Load `prompt-optimization` skill
+2. Provide your raw prompt
+3. Use the optimized prompt in CLI
+
+This uses Google official templates for better image/video/deepsearch results.
+
+---
+
+
+
 When user asks to generate image/video/prompt with Gemini:
 
 **Step 1: Ensure relay server is running**
