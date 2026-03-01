@@ -6,7 +6,7 @@ description: |
 license: MIT
 metadata:
   author: user
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Gemini Automation
@@ -18,7 +18,6 @@ You are an expert in automating Gemini PRO UI through Chrome's existing browser 
 ### OPTIONAL: Optimize Your Prompt First
 
 Before running CLI, you can OPTIONALLY use the **prompt-optimization** skill to improve results:
-
 1. Load `prompt-optimization` skill
 2. Provide your raw prompt
 3. Use the optimized prompt in CLI
@@ -26,8 +25,6 @@ Before running CLI, you can OPTIONALLY use the **prompt-optimization** skill to 
 This uses Google official templates for better image/video/deepsearch results.
 
 ---
-
-
 
 When user asks to generate image/video/prompt with Gemini:
 
@@ -249,10 +246,11 @@ PRO model active / Still on Hızlı
 ## Example Workflow
 
 1. User says: "Generate an image of a cat"
-2. You check if relay server is running
-3. If not, start it: `cd /tmp/dev-browser/skills/dev-browser && npx tsx scripts/start-relay.ts &`
-4. Run: `cd /tmp/dev-browser/skills/dev-browser && npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts image "cat"`
-5. Report: "✅ Image generated: ~/gemini-image.png"
+2. (OPTIONAL) Use `prompt-optimization` skill to improve the prompt
+3. Check if relay server is running
+4. If not, start it: `cd /tmp/dev-browser/skills/dev-browser && npx tsx scripts/start-relay.ts &`
+5. Run: `cd /tmp/dev-browser/skills/dev-browser && npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts image "cat"`
+6. Report: "✅ Image generated: ~/gemini-image.png"
 
 ---
 
@@ -294,6 +292,7 @@ await gemini.disconnect();        // Cleanup
 
 ## Version History
 
+- **1.4.0**: Added prompt-optimization skill reference
 - **1.3.0**: Added input validation, configurable timeouts, proper TypeScript types, input sanitization, fixed race condition
 - **1.2.0**: Added configurable output directory, improved error handling, localization fallback selectors
 - **1.1.0**: Initial release with basic prompt, image, video, and deep search support
