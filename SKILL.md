@@ -1,296 +1,298 @@
 ---
-name: prompt-optimization
+name: gemini-automation
 description: |
-  AI-powered prompt optimization for Gemini image/video/deep search generation. Analyzes raw user prompts and transforms them into optimized prompts using official Google best practices.
-  Use when: user asks to generate image/video with Gemini, wants to improve prompt quality, or needs prompt optimization.
+  Gemini PRO 3.1 UI Automation via existing Chrome profile. Provides AI agent-accessible methods for prompt sending, deep search, image generation, and video generation using dev-browser extension.
+  Use when: automating Gemini UI, generating images/videos with Gemini, conducting deep research via Gemini, or needing AI agent access to Gemini PRO features.
+license: MIT
+metadata:
+  author: user
+  version: "1.4.0"
 ---
 
-# Prompt Optimization
+# Gemini Automation
 
-You are an expert at optimizing prompts for Google's Gemini AI models (Gemini 2.5 Flash Image, Veo 3).
+You are an expert in automating Gemini PRO UI through Chrome's existing browser session using the dev-browser extension and relay server.
 
-## Core Principle
+## Quick Start - Read This First
 
-> **"Describe the scene, don't just list keywords."**
-> 
-> The model's core strength is its deep language understanding. A narrative, descriptive paragraph will almost always produce a better, more coherent image than a simple list of disconnected words.
-> 
-> — Google Developers Blog
+### OPTIONAL: Optimize Your Prompt First
 
----
+Before running CLI, you can OPTIONALLY use the **prompt-optimization** skill to improve results:
+1. Load `prompt-optimization` skill
+2. Provide your raw prompt
+3. Use the optimized prompt in CLI
 
-## Your Mission
-
-When user provides a raw prompt:
-1. **Analyze** the intent (image/video/deepsearch type, subject, style, mood)
-2. **Enhance** using official Google templates
-3. **Optimize** with proven patterns
+This uses Google official templates for better image/video/deepsearch results.
 
 ---
 
-## Google Official Templates (Gemini 2.5 Flash Image)
+When user asks to generate image/video/prompt with Gemini:
 
-### 1. Photorealistic Scenes
-
-**Template:**
+**Step 1: Ensure relay server is running**
+```bash
+cd /tmp/dev-browser/skills/dev-browser && npx tsx scripts/start-relay.ts &
 ```
-A photorealistic [shot type] of [subject], [action or expression], set in [environment]. The scene is illuminated by [lighting description], creating a [mood] atmosphere. Captured with a [camera/lens details], emphasizing [key textures and details]. The image should be in a [aspect ratio] format.
+Wait 3 seconds, verify with: `curl -s http://localhost:9222`
+
+**Step 2: Run the CLI command**
+
+For IMAGE generation:
+```bash
+cd /tmp/dev-browser/skills/dev-browser && npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts image "USER_PROMPT"
 ```
+
+For VIDEO generation:
+```bash
+cd /tmp/dev-browser/skills/dev-browser && npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts video "USER_PROMPT"
+```
+
+For PROMPT/CHAT:
+```bash
+cd /tmp/dev-browser/skills/dev-browser && npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts prompt "USER_PROMPT"
+```
+
+For DEEP RESEARCH:
+```bash
+cd /tmp/dev-browser/skills/dev-browser && npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts deepsearch "USER_QUERY"
+```
+
+**Step 3: Report results**
+- Tell user where the screenshot was saved
+- Show the output path
+
+---
+
+## Prerequisites
+
+### 1. Chrome Extension Setup
+- Install dev-browser Chrome extension
+- Set extension mode to "Active" (not "Off")
+- Ensure your Google account is logged into Gemini
+
+### 2. Relay Server (CRITICAL)
+The relay server must be running for ANY automation:
+
+```bash
+# Start relay server (one-time setup)
+cd /tmp/dev-browser/skills/dev-browser
+npx tsx scripts/start-relay.ts &
+```
+
+Verify it's running:
+```bash
+curl -s http://localhost:9222
+# Should return: {"wsEndpoint":"ws://127.0.0.1:9222/cdp","extensionConnected":true,"mode":"extension"}
+```
+
+---
+
+## Available Actions
+
+### 1. Send Prompt
+**Command:** `npx tsx scripts/cli.ts prompt "your message"`
+
+**What it does:**
+- Connects to Chrome via relay server
+- Switches to PRO model if needed
+- Types prompt into textbox
+- Presses Enter to send
+- Waits for response (15s)
+- Saves screenshot to `{outputDir}/gemini-response.png`
+
+### 2. Deep Search
+**Command:** `npx tsx scripts/cli.ts deepsearch "your research query"`
+
+**What it does:**
+- Opens Gemini Deep Research mode
+- Enters query and submits
+- Auto-clicks approve button when research plan appears
+- Waits for research to complete (2-3 minutes)
+- Saves full research text to `{outputDir}/gemini-deep-research.txt`
+- Saves screenshot to `{outputDir}/gemini-deepsearch.png`
+
+**IMPORTANT:** Deep Research takes 2-3 minutes. Be patient!
 
 **Example:**
-*A photorealistic close-up portrait of an elderly Japanese ceramicist with deep, sun-etched wrinkles and a warm, knowing smile. He is carefully inspecting a freshly glazed tea bowl. The setting is his rustic, sun-drenched workshop. The scene is illuminated by soft, golden hour light streaming through a window, highlighting the fine texture of the clay. Captured with an 85mm portrait lens, resulting in a soft, blurred background (bokeh). The overall mood is serene and masterful. Vertical portrait orientation.*
-
----
-
-### 2. Stylized Illustrations & Stickers
-
-**Template:**
+```bash
+cd /tmp/dev-browser/skills/dev-browser
+npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts deepsearch "AI trends 2026"
 ```
-A [style] sticker of a [subject], featuring [key characteristics] and a [color palette]. The design should have [line style] and [shading style]. The background must be white.
-```
+
+After completion, read the research from `{outputDir}/gemini-deep-research.txt`
+
+### 3. Image Generation
+**Command:** `npx tsx scripts/cli.ts image "sunset over ocean"`
+
+**What it does:**
+- Sends prompt to Gemini
+- Waits for image creation (25s)
+- Saves full-page screenshot to `{outputDir}/gemini-image.png`
 
 **Example:**
-*A kawaii-style sticker of a happy red panda wearing a tiny bamboo hat. It's munching on a green bamboo leaf. The design features bold, clean outlines, simple cel-shading, and a vibrant color palette. The background must be white.*
+```bash
+cd /tmp/dev-browser/skills/dev-browser
+npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts image "Okyanusun üzerinde güneş batışı"
+```
+
+### 4. Video Generation
+**Command:** `npx tsx scripts/cli.ts video "space travel"`
+
+**What it does:**
+- Sends prompt for video
+- Waits for video creation (30s)
+- Saves screenshot to `{outputDir}/gemini-video.png`
 
 ---
 
-### 3. Accurate Text in Images
+## Configuration
 
-**Template:**
-```
-Create a [image type] for [brand/concept] with the text "[text to render]" in a [font style]. The design should be [style description], with a [color scheme].
-```
+### Output Directory
+By default, files are saved to user's home directory. You can change this:
 
-**Example:**
-*Create a modern, minimalist logo for a coffee shop called 'The Daily Grind'. The text should be in a clean, bold, sans-serif font. The design should feature a simple, stylized icon of a coffee bean seamlessly integrated with the text. The color scheme is black and white.*
+```bash
+# Set custom output directory
+GEMINI_OUTPUT_DIR=/tmp/output npx tsx scripts/cli.ts image "cat"
 
----
-
-### 4. Product Mockups
-
-**Template:**
-```
-A high-resolution, studio-lit product photograph of [product description] on [background surface]. The lighting is [lighting setup] to [lighting purpose]. The camera angle is [angle type] to showcase [specific feature]. Ultra-realistic, with sharp focus on [key detail]. [Aspect ratio].
+# Or export for multiple commands
+export GEMINI_OUTPUT_DIR=/tmp
+npx tsx scripts/cli.ts image "cat"
+npx tsx scripts/cli.ts prompt "hello"
 ```
 
-**Example:**
-*A high-resolution, studio-lit product photograph of a minimalist ceramic coffee mug in matte black, presented on a polished concrete surface. The lighting is a three-point softbox setup designed to create soft, diffused highlights and eliminate harsh shadows. The camera angle is a slightly elevated 45-degree shot to showcase its clean lines. Ultra-realistic, with sharp focus on the steam rising from the coffee. Square image.*
+### Timeout Configuration
+You can customize timeouts via environment variables:
 
----
+```bash
+# Page load timeout (default: 30000ms)
+GEMINI_TIMEOUT_PAGE_LOAD=60000 npx tsx scripts/cli.ts prompt "hello"
 
-### 5. Minimalist & Negative Space
+# Response wait timeout (default: 20000ms)
+GEMINI_TIMEOUT_RESPONSE=30000 npx tsx scripts/cli.ts prompt "complex task"
 
-**Template:**
-```
-A minimalist composition featuring a single [subject] positioned in the [frame position] of the frame. The background is a vast, empty [color] canvas, creating significant negative space. Soft, subtle lighting. [Aspect ratio].
-```
+# Deep search timeout (default: 180000ms = 3 minutes)
+GEMINI_TIMEOUT_DEEP_SEARCH=300000 npx tsx scripts/cli.ts deepsearch "AI"
 
-**Example:**
-*A minimalist composition featuring a single, delicate red maple leaf positioned in the bottom-right of the frame. The background is a vast, empty off-white canvas, creating significant negative space for text. Soft, diffused lighting from the top left. Square image.*
+# Image generation timeout (default: 25000ms)
+GEMINI_TIMEOUT_IMAGE=35000 npx tsx scripts/cli.ts image "detailed scene"
 
----
-
-### 6. Sequential Art / Comic Panels
-
-**Template:**
-```
-A single comic book panel in a [art style] style. In the foreground, [character description and action]. In the background, [setting details]. The panel has a [dialogue/caption box] with the text "[Text]". The lighting creates a [mood] mood. [Aspect ratio].
-```
-
----
-
-## Image Editing Templates
-
-### 1. Adding/Removing Elements
-
-**Template:**
-```
-Using the provided image of [subject], please [add/remove/modify] [element] to/from the scene. Ensure the change is [description of how the change should integrate].
+# Video generation timeout (default: 30000ms)
+GEMINI_TIMEOUT_VIDEO=60000 npx tsx scripts/cli.ts video "animation"
 ```
 
 ---
 
-### 2. Inpainting (Specific Area)
+## Error Handling
 
-**Template:**
-```
-Using the provided image, change only the [specific element] to [new element/description]. Keep everything else in the image exactly the same, preserving the original style, lighting, and composition.
-```
+| Error | Solution |
+|-------|----------|
+| "Connection refused" | Start relay server: `cd /tmp/dev-browser/skills/dev-browser && npx tsx scripts/start-relay.ts &` |
+| "Extension not connected" | Set dev-browser extension to "Active" mode |
+| "PRO model not available" | Check if user has PRO access |
+| "Element not found" | Gemini UI may have changed - script will try fallback selectors |
+| "Output directory does not exist" | Set `GEMINI_OUTPUT_DIR` to a valid path |
+| "Prompt cannot be empty" | Provide a non-empty prompt |
+| "Prompt exceeds maximum length" | Prompt is too long (max 10000 chars) |
 
----
+### Troubleshooting
 
-### 3. Style Transfer
+**Relay server won't start:**
+1. Check if port 9222 is available: `lsof -i :9222`
+2. Kill existing process if needed
+3. Restart: `cd /tmp/dev-browser/skills/dev-browser && npx tsx scripts/start-relay.ts &`
 
-**Template:**
-```
-Transform the provided photograph of [subject] into the artistic style of [artist/art style]. Preserve the original composition but render it with [description of stylistic elements].
-```
+**Extension shows as not connected:**
+1. Open Chrome and navigate to any page
+2. Click the dev-browser extension icon
+3. Ensure mode is set to "Active"
 
-**Example:**
-*Transform the provided photograph of a modern city street at night into the artistic style of Vincent van Gogh's 'Starry Night'. Preserve the original composition of buildings and cars, but render all elements with swirling, impasto brushstrokes and a dramatic palette of deep blues and bright yellows.*
-
----
-
-### 4. Multi-Image Composition
-
-**Template:**
-```
-Create a new image by combining the elements from the provided images. Take the [element from image 1] and place it with/on the [element from image 2]. The final image should be a [description of the final scene].
-```
-
----
-
-## Deep Search / Research Templates
-
-### Research Query Structure
-
-**Template:**
-```
-[Topic] - focus on [specific aspect]. Look for [type of sources]. Format: [bullet points/citations/analysis]. Depth: [overview/detailed/technical]. Timeframe: [recent years if applicable].
-```
-
-**Example:**
-*AI trends 2026 - focus on enterprise applications. Look for academic papers and industry reports from 2024-2026. Format: bullet points with citations. Depth: technical overview.*
-
----
-
-## Video Generation (Veo 3)
-
-### Basic Video Template
-
-**Template:**
-```
-[Scene Description] with [Character(s)] doing [Action(s)]. [Camera Movement]. [Atmosphere/Style]. [Audio/Sound details if applicable].
-```
-
-**Required Elements:**
-| Element | Description | Example |
-|---------|-------------|---------|
-| Scene | Setting, environment | "a dystopian city street" |
-| Character | Who/what is in scene | "a man in leather jacket" |
-| Action | What happens | "running and shooting" |
-| Camera | Movement type | "camera follows", "tracking shot" |
-| Mood | Atmosphere | "tense, action-packed" |
-| Audio | Sound effects | "explosions, footsteps" |
-
-### Motion Keywords
-- "slow motion", "time-lapse"
-- "tracking shot", "dolly zoom"
-- "cinematic drone view"
-- "first person view"
-
-### Quality Modifiers
-- "cinematic lighting"
-- "professional filmmaking"
-- "movie quality"
-- "hollywood production"
-
----
-
-## Google Official Best Practices
-
-### DO ✅
-- **Be hyper-specific:** Instead of "fantasy armor," describe it: "ornate elven plate armor, etched with silver leaf patterns, with a high collar and pauldrons shaped like falcon wings."
-- **Provide context and intent:** "Create a logo for a high-end, minimalist skincare brand" yields better results than just "Create a logo."
-- **Iterate and refine:** Use conversational nature to make small changes
-- **Use "semantic negative prompts":** Describe the DESIRED scene positively: "an empty, deserted street with no signs of traffic" instead of "no cars"
-- **Control the camera:** Use photographic language: "wide-angle shot", "macro shot", "low-angle perspective", "85mm portrait lens", "Dutch angle"
-- **Be explicit about aspect ratios:** If you need specific ratio, say it: "Vertical portrait orientation" or "Square image"
-
-### DON'T ❌
-- Don't just list keywords
-- Don't be vague ("make it look cool")
-- Don't forget lighting details
-- Don't ignore composition
-- Don't skip technical quality modifiers
-
----
-
-## Common Mistakes to Fix
-
-| ❌ Weak Prompt | ✅ Optimized Prompt |
-|--------------|-------------------|
-| "a beautiful scene" | "snowy mountain at sunrise, golden hour lighting, misty atmosphere, dramatic clouds" |
-| "make it look cool" | "cinematic lighting, neon accents, shallow depth of field, dramatic shadows" |
-| "character like in photo" | "professional headshot, studio lighting, confident expression, sharp focus on eyes" |
-| "video of running" | "camera follows man running through forest, action cinematography, fast-paced, motion blur" |
-| "logo for coffee" | "minimalist coffee cup icon, clean lines, white background, vector style, black color" |
-
----
-
-## Optimization Process
-
-### Step 1: Identify Type
-- Image generation → Use image template
-- Image editing → Use editing template  
-- Video generation → Use video template
-- Research/Deep Search → Use research template
-
-### Step 2: Apply Template
-- Select appropriate template
-- Fill in all placeholders
-- Add specific details
-
-### Step 3: Enhance
-- Add lighting details
-- Specify camera/lens
-- Include quality modifiers
-- Set mood/atmosphere
-
-### Step 4: Refine
-- Remove ambiguity
-- Use semantic negatives instead of plain negatives
-- Ensure coherent narrative structure
+**Operation times out:**
+- Increase timeout values using environment variables
+- Deep research may take longer depending on query complexity
 
 ---
 
 ## Output Format
 
-When optimizing, respond:
+When completing a Gemini automation task, report:
 
 ```markdown
-## Original Prompt
-[User's raw prompt]
+## Action Taken
+[What was done]
 
-## Optimized Prompt
-[Your enhanced prompt following Google templates]
+## Connection Status
+✅ Connected to existing Chrome session / ❌ Connection failed
 
-## Changes Made
-- Structure: [template used]
-- Added: [lighting, camera, technical details]
-- Improved: [clarity, specificity]
+## Model
+PRO model active / Still on Hızlı
+
+## Result
+[Response summary / Error details]
+
+## Files Generated
+[screenshot paths]
 ```
 
 ---
 
-## Quality Checklist
+## Dependencies
 
-Your optimized prompt should include:
-- ✅ Descriptive narrative (not just keywords)
-- ✅ Specific subject with details
-- ✅ Lighting description
-- ✅ Camera/lens specifications
-- ✅ Style/technique
-- ✅ Mood/atmosphere
-- ✅ Technical quality modifiers
-- ✅ Aspect ratio if important
+- dev-browser Chrome extension (installed and active)
+- Relay server running on localhost:9222
+- Existing Gemini login session
+- PRO model access (user account dependent)
 
 ---
 
-## Reference: Style Keywords
+## Example Workflow
 
-### Photography
-- "professional photography", "studio lighting", "natural light"
-- "85mm portrait lens", "wide-angle", "macro shot"
-- "shallow depth of field", "bokeh", "golden hour"
+1. User says: "Generate an image of a cat"
+2. (OPTIONAL) Use `prompt-optimization` skill to improve the prompt
+3. Check if relay server is running
+4. If not, start it: `cd /tmp/dev-browser/skills/dev-browser && npx tsx scripts/start-relay.ts &`
+5. Run: `cd /tmp/dev-browser/skills/dev-browser && npx tsx /Users/user/.claude/skills/gemini-automation/scripts/cli.ts image "cat"`
+6. Report: "✅ Image generated: ~/gemini-image.png"
 
-### Art Styles
-- "oil painting style", "watercolor", "pencil sketch"
-- "anime style", "manga", "studio ghibli"
-- "3D cgi", "pixar style", "disney animation"
-- "minimalist", "abstract", "surreal"
+---
 
-### Technical
-- "8K", "high resolution", "detailed"
-- "sharp focus", "crisp", "cinematic"
-- "no text", "no watermark", "white background"
+## API Reference
+
+### Module Import
+```typescript
+import { geminiAI } from './cli.js';
+
+// Generate image
+await geminiAI.image("sunset over ocean");
+
+// Generate video  
+await geminiAI.video("space travel");
+
+// Send prompt
+await geminiAI.prompt("hello world");
+
+// Run deep search
+await geminiAI.deepSearch("AI trends 2026");
+
+// Disconnect when done
+await geminiAI.disconnect();
+```
+
+### Class Methods
+```typescript
+const gemini = new GeminiAutomation();
+
+await gemini.connect();           // Connect to Chrome
+await gemini.prompt("text");      // Send prompt
+await gemini.image("prompt");      // Generate image
+await gemini.video("prompt");      // Generate video
+await gemini.deepSearch("query"); // Deep research
+await gemini.disconnect();        // Cleanup
+```
+
+---
+
+## Version History
+
+- **1.4.0**: Added prompt-optimization skill reference
+- **1.3.0**: Added input validation, configurable timeouts, proper TypeScript types, input sanitization, fixed race condition
+- **1.2.0**: Added configurable output directory, improved error handling, localization fallback selectors
+- **1.1.0**: Initial release with basic prompt, image, video, and deep search support
